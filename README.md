@@ -43,3 +43,8 @@ Query
   -> CrossEncoder rerank
   -> Groq answer with page citations
 ```
+## Team Members
+
+- Muhammad Ali Abid - FA23-BBD-085
+- Ibrahim Zaheer - FA23-BBD-058
+- Rana Usman Fakhar - FA23-BBD-049
