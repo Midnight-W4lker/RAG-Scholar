@@ -47,4 +47,4 @@ Query
 
 - Muhammad Ali Abid - FA23-BBD-085
 - Ibrahim Zaheer - FA23-BBD-058
-- Rana Usman Fakhar - FA23-BBD-049
+- Rana Usman Fakhar - SP23-BBD-049
