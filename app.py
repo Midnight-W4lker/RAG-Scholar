@@ -1,7 +1,7 @@
 import os
 import pickle
 import warnings
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 
 from dotenv import load_dotenv
 
@@ -127,7 +127,7 @@ def fmt_docs(docs):
         return "No documents are indexed yet."
     return "\n\n---\n\n".join(
         f"[p.{doc.metadata.get('page', '?')} | "
-        f"{Path(doc.metadata.get('source', '')).name}]\n{doc.page_content}"
+        f"{safe_doc_name(doc.metadata.get('source', 'Document'))}]\n{doc.page_content}"
         for doc in docs
     )
 
@@ -202,7 +202,7 @@ def get_pages(docs):
     pages = []
     for doc in docs:
         page = doc.metadata.get("page", "?")
-        source = Path(doc.metadata.get("source", "")).name
+        source = safe_doc_name(doc.metadata.get("source", "Document"))
         key = f"{source}:p{page}"
         if key not in seen:
             seen.add(key)
@@ -281,7 +281,7 @@ def index_pdf(pdf_path):
         separators=["\n\n", "\n", ". ", " ", ""],
     ).split_documents(pages)
 
-    name = Path(pdf_path).name
+    name = safe_doc_name(pdf_path)
     new_store = FAISS.from_documents(chunks, embeddings)
     if vectorstore is None:
         vectorstore = new_store
@@ -305,11 +305,18 @@ def index_pdf(pdf_path):
 def _names_from_chunks(chunks):
     return sorted(
         {
-            Path(doc.metadata.get("source", "")).name
+            safe_doc_name(doc.metadata.get("source", "Document"))
             for doc in chunks
             if doc.metadata.get("source")
         }
     )
+
+
+def safe_doc_name(value):
+    text = str(value or "Document").strip()
+    if not text:
+        return "Document"
+    return PureWindowsPath(text).name or Path(text).name or "Document"
 
 
 def load_saved_metadata():
@@ -413,29 +420,30 @@ CSS = """
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Spectral:wght@400;500;600;700&display=swap');
 
 :root {
-  --night: #17110d;
-  --night-2: #241810;
-  --parchment: #efe1bf;
-  --parchment-2: #f7edcf;
-  --papyrus: #fff7df;
-  --ink: #24170f;
-  --muted: #66513d;
-  --line: #b78d55;
-  --line-soft: rgba(183, 141, 85, 0.42);
-  --gold: #d8ad5c;
-  --copper: #9f4f2f;
-  --cedar: #34533d;
-  --lapis: #244b68;
-  --shadow: 0 24px 70px rgba(23, 17, 13, 0.3);
+  --canvas: #f4efe4;
+  --paper: #fffaf0;
+  --paper-2: #f3e7d2;
+  --papyrus: #fffaf0;
+  --ink: #211a14;
+  --muted: #6f6254;
+  --line: #c6a978;
+  --line-soft: rgba(140, 107, 62, 0.28);
+  --gold: #b98636;
+  --copper: #9b4d32;
+  --cedar: #2f5a45;
+  --cedar-soft: #e2eee5;
+  --lapis: #284e68;
+  --shadow: 0 18px 45px rgba(69, 49, 29, 0.14);
 }
 
 body,
 .gradio-container {
   background:
-    radial-gradient(circle at 15% 10%, rgba(216,173,92,0.18), transparent 28%),
-    radial-gradient(circle at 84% 4%, rgba(36,75,104,0.18), transparent 24%),
-    linear-gradient(135deg, rgba(23,17,13,0.98), rgba(52,34,22,0.94) 46%, rgba(23,17,13,0.98)),
-    var(--night) !important;
+    linear-gradient(90deg, rgba(33,26,20,0.035) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(33,26,20,0.025) 1px, transparent 1px),
+    radial-gradient(circle at 14% 8%, rgba(185,134,54,0.12), transparent 28%),
+    var(--canvas) !important;
+  background-size: 28px 28px, 28px 28px, auto !important;
   color: var(--ink) !important;
   font-family: "Spectral", Georgia, serif !important;
 }
@@ -459,8 +467,8 @@ body,
   border: 1px solid rgba(216,173,92,0.46);
   border-radius: 8px;
   background:
-    linear-gradient(90deg, rgba(255,247,223,0.96), rgba(239,225,191,0.92)),
-    var(--parchment);
+    linear-gradient(90deg, rgba(255,250,240,0.98), rgba(243,231,210,0.96)),
+    var(--paper);
   box-shadow: var(--shadow);
   overflow: hidden;
 }
@@ -518,9 +526,9 @@ body,
 
 .status-strip {
   align-self: stretch;
-  background: linear-gradient(180deg, #25170e, #3b2617);
-  border: 1px solid rgba(216,173,92,0.55);
-  color: var(--parchment-2);
+  background: linear-gradient(180deg, var(--cedar), #244635);
+  border: 1px solid rgba(47,90,69,0.35);
+  color: #fffaf0;
   min-width: 285px;
   padding: 20px;
   border-radius: 8px;
@@ -528,7 +536,7 @@ body,
 }
 
 .status-strip span {
-  color: var(--gold);
+  color: #ead9ac;
   display: block;
   font-family: "Cinzel", serif;
   font-size: 0.72rem;
@@ -584,16 +592,16 @@ body,
 .side-panel,
 .upload-panel,
 .settings-panel {
-  background: linear-gradient(180deg, rgba(255,247,223,0.98), rgba(239,225,191,0.97));
-  border: 1px solid rgba(216,173,92,0.58);
+  background: var(--paper);
+  border: 1px solid var(--line-soft);
   border-radius: 8px;
   box-shadow: var(--shadow);
   padding: 16px;
 }
 
 .side-panel {
-  background: linear-gradient(180deg, rgba(48,31,20,0.98), rgba(35,24,17,0.98));
-  color: var(--parchment-2);
+  background: linear-gradient(180deg, #fbf4e5, #efe1c4);
+  color: var(--ink);
 }
 
 .side-panel p,
@@ -603,21 +611,21 @@ body,
 .side-panel .doc-list-item,
 .side-panel .empty-state,
 .side-panel .empty-state small {
-  color: var(--parchment-2) !important;
+  color: var(--ink) !important;
 }
 
 .side-panel textarea {
-  background: rgba(255,247,223,0.1) !important;
-  border-color: rgba(216,173,92,0.38) !important;
+  background: var(--paper) !important;
+  border-color: rgba(140,107,62,0.32) !important;
 }
 
 .side-panel .doc-list-item {
-  background: rgba(255,247,223,0.1);
+  background: rgba(255,250,240,0.72);
 }
 
 div[data-testid="chatbot"] {
   background:
-    linear-gradient(180deg, rgba(255,247,223,0.96), rgba(249,235,198,0.96)) !important;
+    linear-gradient(180deg, rgba(255,250,240,0.98), rgba(247,237,217,0.98)) !important;
   border: 1px solid var(--line-soft) !important;
   border-radius: 8px !important;
 }
@@ -679,8 +687,8 @@ textarea:focus {
 
 button[variant="primary"],
 .gr-button-primary {
-  background: linear-gradient(180deg, #a95a36, #7b351f) !important;
-  border: 1px solid #bd7a3f !important;
+  background: linear-gradient(180deg, var(--cedar), #234836) !important;
+  border: 1px solid #3e7358 !important;
   border-radius: 8px !important;
   color: #fff7df !important;
   font-family: "Cinzel", serif !important;
@@ -690,7 +698,7 @@ button[variant="primary"],
 }
 
 button[variant="primary"]:hover {
-  background: linear-gradient(180deg, #bd6841, #8a3d24) !important;
+  background: linear-gradient(180deg, #37664f, #244b38) !important;
 }
 
 button[variant="secondary"] {
@@ -949,7 +957,7 @@ def clear_chat():
 
 def do_upload(files):
     if not files:
-        return "No files selected. Choose one or more PDF files.", doc_list_html(), doc_list_html()
+        return "No files selected. Choose one or more PDF files.", doc_list_html(), doc_list_html(), None
 
     messages = []
     for file in files if isinstance(files, list) else [files]:
@@ -959,10 +967,10 @@ def do_upload(files):
             messages.append(f"Indexed {name}: {chunk_count} chunks")
         except Exception as exc:
             failed_path = file if isinstance(file, str) else getattr(file, "name", "file")
-            messages.append(f"Error indexing {Path(failed_path).name}: {exc}")
+            messages.append(f"Error indexing {safe_doc_name(failed_path)}: {friendly_error(exc)}")
 
     html = doc_list_html()
-    return "\n".join(messages), html, html
+    return "\n".join(messages), html, html, None
 
 
 with gr.Blocks(title="RAG Scholar") as demo:
@@ -1069,7 +1077,7 @@ with gr.Blocks(title="RAG Scholar") as demo:
     upload_btn.upload(
         do_upload,
         upload_btn,
-        [upload_status, upload_doc_list, doc_list],
+        [upload_status, upload_doc_list, doc_list, upload_btn],
     )
 
 

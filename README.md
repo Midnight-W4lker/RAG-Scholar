@@ -1,3 +1,14 @@
+---
+title: RAG Scholar
+emoji: 📜
+colorFrom: yellow
+colorTo: gray
+sdk: gradio
+python_version: "3.11"
+app_file: app.py
+pinned: false
+---
+
 # RAG Scholar
 
 Multi-PDF research chatbot powered by Groq, Gradio, FAISS, BM25, Hugging Face
@@ -21,10 +32,7 @@ Run the app:
 python app.py
 ```
 
-Open <http://127.0.0.1:7860>.
-
-Set `GRADIO_SHARE=true` only when you want Gradio to create a public share
-link.
+Open the local URL printed by Gradio.
 
 ## Notes
 
