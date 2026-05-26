@@ -1,14 +1,3 @@
----
-title: RAG Scholar
-emoji: 📜
-colorFrom: yellow
-colorTo: gray
-sdk: gradio
-python_version: "3.11"
-app_file: app.py
-pinned: false
----
-
 # RAG Scholar
 
 Multi-PDF research chatbot powered by Groq, Gradio, FAISS, BM25, Hugging Face
