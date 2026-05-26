@@ -1160,4 +1160,3 @@ if __name__ == "__main__":
         css=CSS,
         ssr_mode=False,
     )
-    demo.block_thread()
