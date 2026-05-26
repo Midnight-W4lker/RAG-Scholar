@@ -453,6 +453,20 @@ body,
   margin: 0 auto !important;
 }
 
+.gradio-container,
+.gradio-container * {
+  color-scheme: light !important;
+}
+
+.gradio-container label,
+.gradio-container .label-wrap,
+.gradio-container .wrap,
+.gradio-container .secondary-wrap,
+.gradio-container span,
+.gradio-container small {
+  color: var(--ink) !important;
+}
+
 .app-shell {
   padding: 26px 18px 18px;
 }
@@ -630,6 +644,15 @@ div[data-testid="chatbot"] {
   border-radius: 8px !important;
 }
 
+div[data-testid="chatbot"],
+div[data-testid="chatbot"] * {
+  color: var(--ink) !important;
+}
+
+div[data-testid="chatbot"] .placeholder {
+  color: var(--muted) !important;
+}
+
 div[data-testid="chatbot"] .prose,
 div[data-testid="chatbot"] p,
 div[data-testid="chatbot"] li,
@@ -680,6 +703,25 @@ div[data-testid="textbox"] textarea {
   min-height: 58px !important;
 }
 
+div[data-testid="textbox"],
+.gradio-container .form,
+.gradio-container .block,
+.gradio-container .input-container {
+  background: transparent !important;
+  color: var(--ink) !important;
+}
+
+div[data-testid="textbox"] label,
+div[data-testid="textbox"] span {
+  color: var(--ink) !important;
+}
+
+textarea::placeholder,
+div[data-testid="textbox"] textarea::placeholder {
+  color: #6f6254 !important;
+  opacity: 1 !important;
+}
+
 textarea:focus {
   border-color: var(--copper) !important;
   box-shadow: 0 0 0 3px rgba(159,79,47,0.16) !important;
@@ -702,12 +744,16 @@ button[variant="primary"]:hover {
 }
 
 button[variant="secondary"] {
-  background: rgba(255,247,223,0.92) !important;
+  background: #5e5a66 !important;
   border: 1px solid rgba(183,141,85,0.66) !important;
   border-radius: 8px !important;
-  color: var(--ink) !important;
+  color: #fffaf0 !important;
   font-family: "Cinzel", serif !important;
   font-weight: 700 !important;
+}
+
+button[variant="secondary"] * {
+  color: #fffaf0 !important;
 }
 
 .panel-title {
@@ -720,7 +766,7 @@ button[variant="secondary"] {
 }
 
 .panel-title h3 {
-  color: inherit;
+  color: var(--ink) !important;
   font-family: "Cinzel", serif;
   font-size: 1.25rem;
   line-height: 1;
@@ -728,7 +774,7 @@ button[variant="secondary"] {
 }
 
 .panel-title span {
-  color: var(--gold);
+  color: var(--copper) !important;
   font-family: "Cinzel", serif;
   font-size: 0.7rem;
   font-weight: 700;
@@ -786,12 +832,17 @@ button[variant="secondary"] {
 
 .doc-list-item {
   align-items: center;
-  background: rgba(255,247,223,0.1);
-  border: 1px solid rgba(216,173,92,0.28);
+  background: rgba(255,250,240,0.86) !important;
+  border: 1px solid rgba(140,107,62,0.28);
   border-radius: 8px;
+  color: var(--ink) !important;
   display: flex;
   gap: 10px;
   padding: 10px 12px;
+}
+
+.doc-list-item span {
+  color: var(--ink) !important;
 }
 
 .doc-dot {
@@ -824,13 +875,18 @@ button[variant="secondary"] {
 }
 
 .question-panel {
-  background: rgba(36,75,104,0.12);
+  background: #e8ece4 !important;
   border: 1px solid rgba(36,75,104,0.28);
   border-radius: 8px;
-  color: var(--lapis);
+  color: var(--ink) !important;
   line-height: 1.45;
   margin: 0 0 12px;
   padding: 12px 14px;
+}
+
+.question-panel,
+.question-panel * {
+  color: var(--ink) !important;
 }
 
 .question-panel strong {
@@ -854,6 +910,13 @@ button[variant="secondary"] {
   padding: 10px 12px !important;
 }
 
+.examples,
+.examples *,
+.examples-table,
+.examples-table * {
+  color: var(--ink) !important;
+}
+
 .examples-table td:hover {
   background: #f6e4b6 !important;
   border-color: var(--copper) !important;
@@ -866,12 +929,16 @@ button[variant="secondary"] {
 }
 
 .pipeline {
-  background: rgba(52,83,61,0.12);
+  background: var(--cedar-soft) !important;
   border: 1px solid rgba(52,83,61,0.24);
   border-radius: 8px;
-  color: var(--cedar);
+  color: var(--cedar) !important;
   line-height: 1.6;
   padding: 14px;
+}
+
+.pipeline * {
+  color: var(--cedar) !important;
 }
 
 .config-table {
@@ -1080,6 +1147,8 @@ with gr.Blocks(title="RAG Scholar") as demo:
         [upload_status, upload_doc_list, doc_list, upload_btn],
     )
 
+    demo.queue(api_open=False)
+
 
 if __name__ == "__main__":
     server_port = os.getenv("GRADIO_SERVER_PORT")
@@ -1089,5 +1158,6 @@ if __name__ == "__main__":
         share=os.getenv("GRADIO_SHARE", "false").lower() == "true",
         show_error=True,
         css=CSS,
+        ssr_mode=False,
     )
     demo.block_thread()
