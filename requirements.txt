@@ -1,0 +1,28 @@
+# Core LangChain
+langchain
+langchain-core
+langchain-community
+langchain-classic
+langchain-huggingface
+langchain-groq
+langchain-text-splitters
+typing-extensions>=4.15.0
+
+# Retrieval
+faiss-cpu
+rank-bm25
+sentence-transformers
+
+# ML runtime
+torch
+transformers
+accelerate
+
+# Document loading
+pypdf
+
+# UI
+gradio>=6.0
+
+# Utilities
+python-dotenv
