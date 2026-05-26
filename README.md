@@ -1,13 +1,8 @@
----
-title: "RAG Scholar"
-emoji: "📚"
-colorFrom: "yellow"
-colorTo: "gray"
-sdk: "gradio"
-python_version: "3.11"
-app_file: "app.py"
-pinned: false
----
+## Team Members
+
+- Muhammad Ali Abid - FA23-BBD-085
+- Ibrahim Zaheer - FA23-BBD-058
+- Rana Usman Fakhar - SP23-BBD-049
 
 # RAG Scholar
 
