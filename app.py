@@ -138,17 +138,63 @@ def fmt_history(history):
 
     lines = ["Previous conversation:"]
     for item in history[-MEMORY_TURNS * 2 :]:
-        if not isinstance(item, dict):
+        role = ""
+        content = ""
+        if isinstance(item, dict):
+            role = item.get("role", "")
+            content = message_to_text(item.get("content", ""))
+        elif isinstance(item, (list, tuple)) and len(item) >= 2:
+            user_text = message_to_text(item[0])
+            assistant_text = message_to_text(item[1])
+            if user_text:
+                lines.append(f"User: {user_text[:240]}")
+            if assistant_text:
+                answer = assistant_text.split("\n\n### Sources")[0][:500]
+                lines.append(f"Assistant: {answer}")
             continue
-        content = (item.get("content") or "").strip()
+        content = content.strip()
         if not content:
             continue
-        if item.get("role") == "user":
+        if role == "user":
             lines.append(f"User: {content[:240]}")
-        elif item.get("role") == "assistant":
-            answer = content.split("\n\nSources:")[0][:500]
+        elif role == "assistant":
+            answer = content.split("\n\n### Sources")[0][:500]
             lines.append(f"Assistant: {answer}")
     return "\n".join(lines) + "\n\n" if len(lines) > 1 else ""
+
+
+def message_to_text(value):
+    if value is None:
+        return ""
+    if isinstance(value, str):
+        return value
+    if isinstance(value, dict):
+        if "text" in value:
+            return message_to_text(value.get("text"))
+        if "content" in value:
+            return message_to_text(value.get("content"))
+        if "value" in value:
+            return message_to_text(value.get("value"))
+        return ""
+    if isinstance(value, (list, tuple)):
+        parts = [message_to_text(item) for item in value]
+        return " ".join(part for part in parts if part)
+    return str(value)
+
+
+def friendly_error(exc):
+    message = str(exc)
+    lowered = message.lower()
+    if "connection error" in lowered or "connection" in lowered:
+        return (
+            "I could not reach the answer service. Check that the Space has the "
+            "`GROQ_API_KEY` secret set, the key is active, and the app has internet access."
+        )
+    if "401" in message or "invalid api key" in lowered or "unauthorized" in lowered:
+        return "The answer service rejected the API key. Rotate the key and update `GROQ_API_KEY`."
+    if "429" in message or "rate limit" in lowered:
+        return "The answer service is rate-limited right now. Wait a moment and try again."
+    return message
 
 
 def get_pages(docs):
@@ -882,7 +928,7 @@ EXAMPLES = [
 
 def respond(message, history):
     history = history or []
-    message = (message or "").strip()
+    message = message_to_text(message).strip()
     if not message:
         yield "", history
         return
@@ -894,7 +940,7 @@ def respond(message, history):
         for answer in stream_answer(message, history):
             yield "", working_history + [{"role": "assistant", "content": answer}]
     except Exception as exc:
-        yield "", working_history + [{"role": "assistant", "content": f"Error: {exc}"}]
+        yield "", working_history + [{"role": "assistant", "content": f"Error: {friendly_error(exc)}"}]
 
 
 def clear_chat():
